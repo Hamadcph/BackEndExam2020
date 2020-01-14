@@ -30,14 +30,6 @@ public class UserResource {
         return "{\"msg\":\"Hello World\"}";
     }
 
-    @Path("spells")
-    @GET
-    @Produces({MediaType.APPLICATION_JSON})
-    @RolesAllowed("user")
-    public String findSpells() {
-        return "spells";
-    }
-
     @Path("delete")
     @GET
     @Produces({MediaType.APPLICATION_JSON})
