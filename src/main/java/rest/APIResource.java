@@ -3,6 +3,8 @@ package rest;
 import DTO.movieInfo;
 import DTO.movieScore;
 import com.google.gson.Gson;
+import entities.MovieInfo;
+import entities.MovieScore;
 import entities.User;
 import facades.fetchFacade;
 import java.io.IOException;
@@ -89,14 +91,44 @@ public class APIResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("movie-info-all/{title}")
-    @RolesAllowed("user")
+    //@RolesAllowed("user")
     public String getMovieScore(@PathParam("title") String title) throws ProtocolException, IOException {
+        System.out.println(MovieExist(title));
         Gson g = new Gson();
         movieInfo info = api.getMovieData(title);
         List<movieScore> ms = api.getMovieScore(title);
         info.setScores(ms);
-                
+//        EntityManagerFactory emf = EMF_Creator.createEntityManagerFactory(EMF_Creator.DbSelector.DEV, EMF_Creator.Strategy.CREATE);
+//        EntityManager em = emf.createEntityManager();
+//        em.getTransaction().begin();
+//        MovieInfo mi = new MovieInfo(info);
+//        ArrayList<MovieScore> scoreList = new ArrayList<MovieScore>();
+//        for (movieScore x : ms) {
+//            scoreList.add(new MovieScore(x, mi));
+//        }
+//        mi.setScores(scoreList);
+//        em.persist(mi);
+//        em.getTransaction().commit();
+//        em.close();
+//        emf.close();
         return g.toJson(info);
+    }
+
+    public boolean MovieExist(String title) {
+                EntityManager em = EMF.createEntityManager();
+        try
+        {
+            List<MovieInfo> mi = em.createQuery("select i from MovieInfo i where i.title=:title").setParameter("title", title).getResultList();
+            if(mi.size() > 0){
+                return true;
+            } else {
+                return false;
+            }
+        }
+        finally
+        {
+            em.close();
+        }
     }
 
 }

@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package facades;
 
 import DTO.movieInfo;
@@ -35,25 +30,6 @@ import java.util.concurrent.Future;
  */
 public class fetchFacade {
 
-//    public String getAllDataInParalelWithQueue() throws ProtocolException, IOException, InterruptedException, ExecutionException
-//    {
-//        ExecutorService workingJack = Executors.newCachedThreadPool();
-//        List<Future<String>> futureList = new ArrayList();
-//        for (int index = 1; index < 119; index++)
-//        {
-//            final int i = index;
-//            Future<String> future = workingJack.submit(() -> getDnDData(i));
-//            futureList.add(future);
-//        }
-//        StringBuilder sb = new StringBuilder("[");
-//        for (Future<String> future : futureList)
-//        {
-//            sb.append(future.get() + ",");
-//        }
-//        sb.append("]");
-//        return sb.toString();
-//
-//    }
     public movieInfo getMovieData(String title) throws MalformedURLException, ProtocolException, IOException
     {
         MovieInfoPassthrough m;
@@ -151,13 +127,6 @@ public class fetchFacade {
         
     }
         
-
-    
-    
-    
-    
-    
-    
 
     
     public static void main(String[] args) throws ProtocolException, IOException, InterruptedException, ExecutionException {
