@@ -1,10 +1,13 @@
 package rest;
 
+import DTO.movieInfo;
+import DTO.movieScore;
 import com.google.gson.Gson;
 import entities.User;
 import facades.fetchFacade;
 import java.io.IOException;
 import java.net.ProtocolException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.security.RolesAllowed;
@@ -21,9 +24,9 @@ import javax.ws.rs.core.SecurityContext;
 import utils.EMF_Creator;
 
 /**
- * @author lam@cphbusiness.dk
+ * @author Hamad
  */
-@Path("info")
+@Path("movie")
 public class APIResource {
 
     private static EntityManagerFactory EMF = EMF_Creator.createEntityManagerFactory(EMF_Creator.DbSelector.DEV, EMF_Creator.Strategy.CREATE);
@@ -73,14 +76,27 @@ public class APIResource {
         String thisuser = securityContext.getUserPrincipal().getName();
         return "{\"msg\": \"Hello to (admin) User: " + thisuser + "\"}";
     }
-    
-    
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("AllSpells/{index}")
-    //@RolesAllowed("user")
-    public String getAllSpells(@PathParam("index") int index) throws ProtocolException, IOException {
-        return api.getDnDData(index);
+    @Path("movie-info-simple/{title}")
+    public String getMovie(@PathParam("title") String title) throws ProtocolException, IOException {
+        Gson g = new Gson();
+        movieInfo info = api.getMovieData(title);
+        return g.toJson(info);
     }
-    
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("movie-info-all/{title}")
+    @RolesAllowed("user")
+    public String getMovieScore(@PathParam("title") String title) throws ProtocolException, IOException {
+        Gson g = new Gson();
+        movieInfo info = api.getMovieData(title);
+        List<movieScore> ms = api.getMovieScore(title);
+        info.setScores(ms);
+                
+        return g.toJson(info);
+    }
+
 }
