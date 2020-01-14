@@ -1,8 +1,11 @@
 
 package DTO;
 
+import entities.MovieInfo;
 import entities.MovieInfoPassthrough;
 import entities.MoviePosterPassthrough;
+import entities.MovieScore;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -26,6 +29,22 @@ public class movieInfo {
         this.genres = genres;
         this.cast = cast;
     }
+
+    public movieInfo(MovieInfo m) {
+        this.title = m.getTitle();
+        this.year = m.getYear();
+        this.plot = m.getPlot();
+        this.directors = m.getDirectors();
+        this.genres = m.getGenres();
+        this.cast = m.getCast();
+        this.poster = m.getPoster();
+        this.scores = new ArrayList<movieScore>();
+        for(MovieScore s : m.getScores()){
+            this.scores.add(new movieScore(m.getTitle(), s.getSource(), s.getRating()));
+        }
+    }
+    
+    
 
     public movieInfo(MovieInfoPassthrough m, MoviePosterPassthrough p) {
         this.title = m.getTitle();

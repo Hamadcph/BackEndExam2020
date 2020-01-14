@@ -61,6 +61,10 @@ public class MovieInfo implements Serializable {
         this.scores = scores;
     }
 
+    public List<MovieScore> getScores() {
+        return scores;
+    }
+
     public MovieInfo(movieInfo m) {
         this.title = m.getTitle();
         this.year = m.getYear();
@@ -68,6 +72,7 @@ public class MovieInfo implements Serializable {
         this.directors = m.getDirectors();
         this.genres = m.getGenres();
         this.cast = m.getCast();
+        this.poster = m.getPoster();
     }
 
     public MovieInfo(MovieInfoPassthrough m, MoviePosterPassthrough p) {

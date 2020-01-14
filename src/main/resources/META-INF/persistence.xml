@@ -6,6 +6,7 @@
     <class>entities.Role</class>
     <class>entities.MovieInfo</class>
     <class>entities.MovieScore</class>
+    <class>entities.Count</class>
     <exclude-unlisted-classes>false</exclude-unlisted-classes>
     <properties>
       <!-- DO NOT remove the line below. It's not set by the  entityUtils.EMF_Creator -->

@@ -1,8 +1,10 @@
 package rest;
 
+import DTO.CountDTO;
 import DTO.movieInfo;
 import DTO.movieScore;
 import com.google.gson.Gson;
+import entities.Count;
 import entities.MovieInfo;
 import entities.MovieScore;
 import entities.User;
@@ -84,6 +86,7 @@ public class APIResource {
     @Path("movie-info-simple/{title}")
     public String getMovie(@PathParam("title") String title) throws ProtocolException, IOException {
         Gson g = new Gson();
+        createOrGetMovie(title);
         movieInfo info = api.getMovieData(title);
         return g.toJson(info);
     }
@@ -93,42 +96,87 @@ public class APIResource {
     @Path("movie-info-all/{title}")
     //@RolesAllowed("user")
     public String getMovieScore(@PathParam("title") String title) throws ProtocolException, IOException {
-        System.out.println(MovieExist(title));
         Gson g = new Gson();
-        movieInfo info = api.getMovieData(title);
-        List<movieScore> ms = api.getMovieScore(title);
-        info.setScores(ms);
-//        EntityManagerFactory emf = EMF_Creator.createEntityManagerFactory(EMF_Creator.DbSelector.DEV, EMF_Creator.Strategy.CREATE);
-//        EntityManager em = emf.createEntityManager();
-//        em.getTransaction().begin();
-//        MovieInfo mi = new MovieInfo(info);
-//        ArrayList<MovieScore> scoreList = new ArrayList<MovieScore>();
-//        for (movieScore x : ms) {
-//            scoreList.add(new MovieScore(x, mi));
-//        }
-//        mi.setScores(scoreList);
-//        em.persist(mi);
-//        em.getTransaction().commit();
-//        em.close();
-//        emf.close();
-        return g.toJson(info);
+        createOrGetMovie(title);
+        EntityManager em = EMF.createEntityManager();
+        try {
+            List<MovieInfo> mi = em.createQuery("select i from MovieInfo i where i.title=:title").setParameter("title", title).getResultList();
+            movieInfo result = new movieInfo(mi.get(0));
+            return g.toJson(result);
+        } finally {
+            em.close();
+        }
+    }
+
+    public boolean createOrGetMovie(String title) throws ProtocolException, IOException {
+        if (MovieExist(title)) {
+            EntityManager em = EMF.createEntityManager();
+            try {
+                List<MovieInfo> mi = em.createQuery("select i from MovieInfo i where i.title=:title").setParameter("title", title).getResultList();
+                Count c = (Count) em.createQuery("select c from Count c where c.mf=:mf").setParameter("mf", mi.get(0)).getSingleResult();
+                c.count();
+                em.getTransaction().begin();
+                em.persist(c);
+                em.getTransaction().commit();
+            } finally {
+                em.close();
+            }
+            return false;
+        } else {
+            movieInfo info = api.getMovieData(title);
+            List<movieScore> ms = api.getMovieScore(title);
+            info.setScores(ms);
+            EntityManagerFactory emf = EMF_Creator.createEntityManagerFactory(EMF_Creator.DbSelector.DEV, EMF_Creator.Strategy.CREATE);
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            MovieInfo mi = new MovieInfo(info);
+            ArrayList<MovieScore> scoreList = new ArrayList<MovieScore>();
+            for (movieScore x : ms) {
+                scoreList.add(new MovieScore(x, mi));
+            }
+            mi.setScores(scoreList);
+            Count c = new Count(1, mi);
+            em.persist(mi);
+            em.persist(c);
+            em.getTransaction().commit();
+            em.close();
+            emf.close();
+            return true;
+        }
     }
 
     public boolean MovieExist(String title) {
-                EntityManager em = EMF.createEntityManager();
-        try
-        {
+        EntityManager em = EMF.createEntityManager();
+        try {
             List<MovieInfo> mi = em.createQuery("select i from MovieInfo i where i.title=:title").setParameter("title", title).getResultList();
-            if(mi.size() > 0){
+            if (mi.size() > 0) {
                 return true;
             } else {
                 return false;
             }
-        }
-        finally
-        {
+        } finally {
             em.close();
         }
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("movie-count/{title}")
+    //@RolesAllowed("user")
+    public String getMovieCount(@PathParam("title") String title) throws ProtocolException, IOException {
+        EntityManager em = EMF.createEntityManager();
+        Gson g = new Gson();
+        try {
+            List<MovieInfo> mi = em.createQuery("select i from MovieInfo i where i.title=:title").setParameter("title", title).getResultList();
+            Count c = (Count) em.createQuery("select c from Count c where c.mf=:mf").setParameter("mf", mi.get(0)).getSingleResult();
+            CountDTO ct = new CountDTO(c.getCount(), new movieInfo(mi.get(0)));
+            return g.toJson(ct);
+        } catch (Exception e) {
+            return "not found";
+        } finally {
+            em.close();
+        }
+
     }
 
 }
