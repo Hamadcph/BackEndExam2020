@@ -95,7 +95,7 @@ public class APIResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("movie-info-all/{title}")
-    //@RolesAllowed("user")
+    @RolesAllowed("user")
     public String getMovieScore(@PathParam("title") String title) throws ProtocolException, IOException {
         Gson g = new Gson();
         createOrGetMovie(title);
